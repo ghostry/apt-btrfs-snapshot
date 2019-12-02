@@ -69,6 +69,7 @@ class FstabEntry(object):
 
 class Fstab(list):
     """ a list of FstabEntry items """
+
     def __init__(self, fstab="/etc/fstab"):
         super(Fstab, self).__init__()
 
@@ -82,11 +83,24 @@ class Fstab(list):
                     continue
                 self.append(entry)
 
+    def get_root(self):
+        options = []
+        for line in self:
+            if line.mountpoint == '/' and line.fstype == 'btrfs':
+                options = line.options.split(',')
+        for option in options:
+            op = option.strip().split('=')
+            if op[0] == 'subvol':
+                return op[1].strip()
+        print('Not find btrfs root')
+        raise AptBtrfsNotSupportedError()
+
 
 class LowLevelCommands(object):
     """ lowlevel commands invoked to perform various tasks like
         interact with mount and btrfs tools
     """
+
     def mount(self, fs_spec, mountpoint):
         ret = subprocess.call(["mount", fs_spec, mountpoint])
         return ret == 0
@@ -108,13 +122,13 @@ class LowLevelCommands(object):
 class AptBtrfsSnapshot(object):
     """ the high level object that interacts with the snapshot system """
 
-    # normal snapshot
-    SNAP_PREFIX = "@apt-snapshot-"
-    # backname when changing
-    BACKUP_PREFIX = SNAP_PREFIX + "old-root-"
-
     def __init__(self, fstab="/etc/fstab"):
         self.fstab = Fstab(fstab)
+        self.root_volume = self.fstab.get_root()
+        # normal snapshot
+        self.SNAP_PREFIX = "%s-apt-snapshot-" % self.root_volume
+        # backname when changing
+        self.BACKUP_PREFIX = self.SNAP_PREFIX + "old-root-"
         self.commands = LowLevelCommands()
         self._btrfs_root_mountpoint = None
 
@@ -134,7 +148,7 @@ class AptBtrfsSnapshot(object):
             if (
                     entry.mountpoint == "/" and
                     entry.fstype == "btrfs" and
-                    "subvol=@" in entry.options):
+                    ("subvol=%s" % self.root_volume) in entry.options):
                 return entry
         return None
 
@@ -166,7 +180,7 @@ class AptBtrfsSnapshot(object):
     def create_btrfs_root_snapshot(self, additional_prefix=""):
         mp = self.mount_btrfs_root_volume()
         snap_id = self._get_now_str()
-        source = os.path.join(mp, "@")
+        source = os.path.join(mp, self.root_volume)
         target = os.path.join(mp, self.SNAP_PREFIX + additional_prefix +
                               snap_id)
 
@@ -254,9 +268,9 @@ class AptBtrfsSnapshot(object):
         new_root = os.path.join(mp, snapshot_name)
         if (
                 os.path.isdir(new_root) and
-                snapshot_name.startswith("@") and
-                snapshot_name != "@"):
-            default_root = os.path.join(mp, "@")
+                snapshot_name.startswith(self.root_volume) and
+                snapshot_name != self.root_volume):
+            default_root = os.path.join(mp, self.root_volume)
             backup = os.path.join(mp, self.BACKUP_PREFIX + self._get_now_str())
             os.rename(default_root, backup)
             os.rename(new_root, default_root)
