@@ -1,5 +1,5 @@
 Package: apt-btrfs-snapshot
-Version: 2:3.6.2-3~disco1
+Version: 2:3.6.3-1~disco1
 Architecture: all
 Maintainer: Mikhail Novosyolov <mikhailnov@dumalogiya.ru>
 Installed-Size: 46
