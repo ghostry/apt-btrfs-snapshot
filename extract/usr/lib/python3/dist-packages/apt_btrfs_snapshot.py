@@ -205,8 +205,6 @@ class AptBtrfsSnapshot(object):
             entry = self._get_supported_btrfs_root_fstab_entry()
             if not entry:
                 raise AptBtrfsNotSupportedError()
-            if "noatime" in entry.options:
-                raise AptBtrfsRootWithNoatimeError()
         # if there is no older than, interpret that as "now"
         if older_than == 0:
             older_than = time.time()
@@ -215,7 +213,10 @@ class AptBtrfsSnapshot(object):
             if e.startswith(self.SNAP_PREFIX):
                 # fstab is read when it was booted and when a snapshot is
                 # created (to check if there is support for btrfs)
-                atime = os.path.getatime(os.path.join(mp, e, "etc", "fstab"))
+                import re
+                match = re.search(r'\d{4}-\d{2}-\d{2}_\d{2}:\d{2}:\d{2}', e)
+                ts = time.strptime(match.group(), "%Y-%m-%d_%H:%M:%S")
+                atime = time.mktime(ts)
                 if atime < older_than:
                     l.append(e)
         self.umount_btrfs_root_volume()
