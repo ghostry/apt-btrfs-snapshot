@@ -1,0 +1,10 @@
+[Unit]
+Description=Clean old BTRFS snapshots made by apt-btrfs-snapshot
+ConditionACPower=true
+
+[Service]
+StandardOutput=journal
+StandardError=journal
+Type=oneshot
+ExecStart=/usr/bin/apt-btrfs-snapshot-sanity
+ExecStartPost=/bin/btrfs filesystem sync '/'

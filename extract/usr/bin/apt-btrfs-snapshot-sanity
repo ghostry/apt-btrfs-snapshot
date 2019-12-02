@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+# check if its there
+if [ ! -x /usr/bin/apt-btrfs-snapshot ]; then
+    exit 0
+fi
+
+# check if its usable, if list returns a non-zero exit code, 
+# we probably run on a system with no snapshot support
+if ! /usr/bin/apt-btrfs-snapshot list > /dev/null  2>&1; then
+    exit 0
+fi
+
+# configs from /etc/apt-btrfs-snapshot.conf.d/ are loaded (sources) in an alpha-numerical order (as `ls -1v`)
+MaxAge=15
+eval $(apt-config shell MaxAge APT::Snapshots::MaxAge)
+for i in $(/bin/ls -1v /etc/apt-btrfs-snapshot.conf.d/*.conf)
+do
+	. "$i"
+done
+
+# delete old snapshots
+apt-btrfs-snapshot delete-older-than "${MaxAge}d"
+

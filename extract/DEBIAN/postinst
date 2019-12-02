@@ -1,0 +1,37 @@
+#!/bin/sh
+set -e
+
+# Automatically added by dh_python3:
+if which py3compile >/dev/null 2>&1; then
+	py3compile -p apt-btrfs-snapshot -V 3.2-
+fi
+if which pypy3compile >/dev/null 2>&1; then
+	pypy3compile -p apt-btrfs-snapshot -V 3.2- || true
+fi
+
+# End automatically added section
+# Automatically added by dh_systemd_enable/12ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	# This will only remove masks created by d-s-h on package removal.
+	deb-systemd-helper unmask 'apt-btrfs-snapshot-sanity.timer' >/dev/null || true
+
+	# was-enabled defaults to true, so new installations run enable.
+	if deb-systemd-helper --quiet was-enabled 'apt-btrfs-snapshot-sanity.timer'; then
+		# Enables the unit on first installation, creates new
+		# symlinks on upgrades if the unit file has changed.
+		deb-systemd-helper enable 'apt-btrfs-snapshot-sanity.timer' >/dev/null || true
+	else
+		# Update the statefile to add new symlinks (if any), which need to be
+		# cleaned up on purge. Also remove old symlinks.
+		deb-systemd-helper update-state 'apt-btrfs-snapshot-sanity.timer' >/dev/null || true
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start/12ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -d /run/systemd/system ]; then
+		systemctl --system daemon-reload >/dev/null || true
+		deb-systemd-invoke start 'apt-btrfs-snapshot-sanity.service' 'apt-btrfs-snapshot-sanity.timer' >/dev/null || true
+	fi
+fi
+# End automatically added section

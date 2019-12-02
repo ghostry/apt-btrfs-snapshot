@@ -1,0 +1,8 @@
+af11dbe2927d6d11638cbb07d05a4b10  lib/systemd/system/apt-btrfs-snapshot-sanity.service
+24fb21933cc65972fa8ea561a86e61cd  lib/systemd/system/apt-btrfs-snapshot-sanity.timer
+0c60f8aee4c3fb2a0ad6ffb1521b406f  usr/bin/apt-btrfs-snapshot
+324396db521682d286afff089ce95fd5  usr/bin/apt-btrfs-snapshot-sanity
+48627ca2219782cb1b4605237aa80607  usr/lib/python3/dist-packages/apt_btrfs_snapshot-3.6.egg-info
+9429efe2b2a68c1f4c9f5e7231e73285  usr/lib/python3/dist-packages/apt_btrfs_snapshot.py
+64991b08de2065202fa066bb1b4d7e4e  usr/share/doc/apt-btrfs-snapshot/changelog.Debian.gz
+f850f663430b4c3b2d6a5877096e842d  usr/share/doc/apt-btrfs-snapshot/copyright
