@@ -3,7 +3,7 @@ Version: 2:3.6.3-1~disco1
 Architecture: all
 Maintainer: Mikhail Novosyolov <mikhailnov@dumalogiya.ru>
 Installed-Size: 46
-Depends: python3:any (>= 3.2~), python3-distutils | python3-distutils-extra, btrfs-progs | btrfs-tools
+Depends: python3:any (>= 3.2~), btrfs-progs | btrfs-tools
 Recommends: btrfsmaintenance, dumasnap
 Section: admin
 Priority: optional
